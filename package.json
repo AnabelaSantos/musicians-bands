@@ -24,5 +24,8 @@
   "homepage": "https://github.com/MultiverseLearningProducts/musicians-bands#readme",
   "directories": {
     "test": "test"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.0"
   }
 }

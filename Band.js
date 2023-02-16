@@ -7,16 +7,6 @@ let Band = sequelize.define("Band", {
   genre: DataTypes.STRING,
 });
 
-// add a column to Band
-
-// async function main() {
-//   await sequelize.sync();
-//   queryInterface.addColumn("name", "genre", {
-//     showCount: DataTypes.NUMBER,
-//   });
-// }
-// main();
-
 module.exports = {
   Band,
 };
