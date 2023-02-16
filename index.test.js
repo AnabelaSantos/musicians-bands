@@ -1,5 +1,5 @@
 const { sequelize } = require("./db");
-const { Band, Musician } = require("./index");
+const { Band, Musician, Song } = require("./index");
 const { db } = require("./db");
 
 describe("Band and Musician Models", () => {
@@ -123,5 +123,79 @@ describe("Band and Musician Models Association", () => {
     expect(band1musicians.length).toBe(2);
     expect(band1musicians[0] instanceof Musician).toBeTruthy;
     expect(band1musicians[0].name).toBe("Maria");
+  });
+});
+
+//PART 3
+
+describe("Band and Song Models Association", () => {
+  /**
+   * Runs the code prior to all tests
+   */
+  beforeAll(async () => {
+    // the 'sync' method will create tables based on the model class
+    // by setting 'force:true' the tables are recreated each time the
+    // test suite is run
+    await sequelize.sync({ force: true });
+  });
+
+  test("can create a Song", async () => {
+    let song = await Song.create({
+      title: "Great Hit",
+      year: 1978,
+    });
+    expect(typeof Song).toBe("function");
+    expect(song).toHaveProperty("title", "Great Hit");
+    expect(song).toHaveProperty("year", 1978);
+  });
+
+  test("If a Band can have many Songs and if a Song can have many Bands", async () => {
+    // create Bands and Songs
+    //Populate the DB with a a band and some musicians
+    let band1 = await Band.create({
+      name: "Big Band",
+      genre: "Jazz",
+      showCount: 5,
+    });
+    let band2 = await Band.create({
+      name: "Small Band",
+      genre: "Classic",
+      showCount: 7,
+    });
+    let song1 = await Song.create({
+      title: "Great Hit",
+      year: 1978,
+    });
+    let song2 = await Song.create({
+      title: "Small Hit",
+      year: 1984,
+    });
+    // create some associations - put songs in band
+    await band1.addSongs([song1, song2]);
+    await band2.addSongs([song1, song2]);
+    // create some associations - put band in songs
+    await song1.addBands([band1, band2]);
+    await song2.addBands([band1, band2]);
+
+    // test the association
+    const band1Songs = await band1.getSongs();
+    expect(band1Songs.length).toBe(2);
+    expect(band1Songs[0] instanceof Song).toBeTruthy;
+    expect(band1Songs[0]).toHaveProperty("title", "Great Hit");
+
+    const band2Songs = await band2.getSongs();
+    expect(band2Songs.length).toBe(2);
+    expect(band2Songs[0] instanceof Song).toBeTruthy;
+    expect(band2Songs[1]).toHaveProperty("year", 1984);
+
+    const song1Bands = await song1.getBands();
+    expect(song1Bands.length).toBe(2);
+    expect(song1Bands[0] instanceof Band).toBeTruthy;
+    expect(song1Bands[0]).toHaveProperty("name", "Big Band");
+
+    const song2Bands = await song2.getBands();
+    expect(song2Bands.length).toBe(2);
+    expect(song2Bands[0] instanceof Band).toBeTruthy;
+    expect(song2Bands[1]).toHaveProperty("genre", "Classic");
   });
 });
