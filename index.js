@@ -3,34 +3,42 @@ const { Band } = require("./Band");
 const { sequelize } = require("./db");
 const { Musician } = require("./Musician");
 
-// create
-async () => {
-  await sequelize.sync({ force: true });
+Musician.belongsTo(Band);
+Band.hasMany(Musician);
 
-  let musician = await Musician.create({
-    name: "Matt",
-    instrument: "Saxophone",
-  });
+// // create
+// async () => {
+//   await sequelize.sync({ force: true });
 
-  // let NewMusician = await Musician.create({
-  //   name: "Dede",
-  //   instrument: "Piano",
-  // });
+//   // let musician = await Musician.create({
+//   //   name: "Matt",
+//   //   instrument: "Saxophone",
+//   // });
 
-  //   //delete an instance
-  //   await NewMusician.destroy({
-  //     where: {
-  //       name: "Dede",
-  //     },
-  //   });
+//   // let NewMusician = await Musician.create({
+//   //   name: "Dede",
+//   //   instrument: "Piano",
+//   // });
 
-  musician.update({
-    name: "Joan",
-    instrument: "Violin",
-  });
-  await musician.save();
-};
+//   //   //delete an instance
+//   //   await NewMusician.destroy({
+//   //     where: {
+//   //       name: "Dede",
+//   //     },
+//   //   });
 
+//   //   musician.update({
+//   //     name: "Joan",
+//   //     instrument: "Violin",
+//   //   });
+//   //   await musician.save();
+
+//   const updateMusician = musician.update({
+//     name: "Joan",
+//     instrument: "Violin",
+//   });
+//   await musician.save();
+// };
 module.exports = {
   Band,
   Musician,
