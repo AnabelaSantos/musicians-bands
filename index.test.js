@@ -199,3 +199,96 @@ describe("Band and Song Models Association", () => {
     expect(song2Bands[1]).toHaveProperty("genre", "Classic");
   });
 });
+
+//PART 4
+
+describe("Eager load", () => {
+  /**
+   * Runs the code prior to all tests
+   */
+  beforeAll(async () => {
+    // the 'sync' method will create tables based on the model class
+    // by setting 'force:true' the tables are recreated each time the
+    // test suite is run
+    await sequelize.sync({ force: true });
+  });
+
+  test("Songs can be eager loaded with Musicians", async () => {
+    // create Bands, Songs and Musicians
+    //Populate the DB with a a band and some musicians
+    let band1 = await Band.create({
+      name: "Big Band",
+      genre: "Jazz",
+      showCount: 5,
+    });
+    let band2 = await Band.create({
+      name: "Small Band",
+      genre: "Classic",
+      showCount: 7,
+    });
+    let song1 = await Song.create({
+      title: "Great Hit",
+      year: 1978,
+    });
+    let song2 = await Song.create({
+      title: "Small Hit",
+      year: 1984,
+    });
+
+    let musician1 = await Musician.create({
+      name: "Maria",
+      instrument: "Saxophone",
+    });
+    let musician2 = await Musician.create({
+      name: "Francisca",
+      instrument: "Guitar",
+    });
+
+    let musician3 = await Musician.create({
+      name: "Cecil",
+      instrument: "Piano",
+    });
+    let musician4 = await Musician.create({
+      name: "Cece",
+      instrument: "Violin",
+    });
+    let musician5 = await Musician.create({
+      name: "Bebas",
+      instrument: "Clarinet",
+    });
+
+    // create some associations - put songs in band
+    await band1.addSongs([song1, song2]);
+    await band2.addSongs([song1, song2]);
+    // create some associations - put band in songs
+    await song1.addBands([band1, band2]);
+    await song2.addBands([band1, band2]);
+
+    // create some associations - put musicians in bands
+    await band1.addMusician(musician1);
+    await band1.addMusician(musician2);
+    await band2.addMusician(musician3);
+    await band2.addMusician(musician4);
+    await band2.addMusician(musician5);
+
+    //test eager loading all musicians in bands
+
+    const bands = await Band.findAll({ include: Musician });
+    // console.log(bands[0].Musicians.length);
+
+    expect(bands[0].Musicians.length).toBe(2);
+    expect(bands[1].Musicians.length).toBe(3);
+
+    // test eager loading all bands that play a song
+
+    const fetchedSong = await Song.findOne({ include: Band });
+    // console.log(fetchedSong.Bands);
+    expect(fetchedSong.Bands.length).toBe(2);
+
+    //test eager all songs and all bands
+    const fetchedBand = await Band.findAll({ include: Song });
+    console.log(fetchedBand[0].Songs);
+    expect(fetchedBand[0].Songs.length).toBe(2);
+    expect(fetchedBand[1].Songs.length).toBe(2);
+  });
+});
